@@ -1,4 +1,4 @@
-package com.ria.birdService.repos;
+package com.ria.birdService.repository;
 
 import com.ria.birdService.model.Bird;
 import org.springframework.data.jpa.repository.JpaRepository;
