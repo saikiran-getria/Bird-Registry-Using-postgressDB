@@ -45,7 +45,7 @@ public class BirdService {
         if (bird.isEmpty()) {
             throw new BirdAppException("Bird with id " + id + " not found", HttpStatus.NOT_FOUND);
         }
-        return repository.findById(id);
+        return bird;
     }
 
     public void deleteBirdById(String id) {

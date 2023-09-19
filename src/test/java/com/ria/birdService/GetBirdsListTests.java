@@ -2,7 +2,6 @@ package com.ria.birdService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ria.birdService.config.DbContainer;
-import com.ria.birdService.exception.handler.ErrorMessage;
 import com.ria.birdService.model.dto.BirdDTO;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.Assertions;
@@ -25,14 +24,15 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @SpringBootTest
 @ActiveProfiles("test")
-class CreateBirdTests {
-
+public class GetBirdsListTests {
     @ClassRule
     public static PostgreSQLContainer<DbContainer> postgreSQLContainer = DbContainer.getInstance();
 
     private MockMvc mockMvc;
     @Autowired
     protected WebApplicationContext webApplicationContext;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -40,38 +40,17 @@ class CreateBirdTests {
     }
 
     @Test
-    void givenValidBirdRequest_createBirdAndReturnBird() throws Exception {
+    public void testGetAllVisibleBirds() throws Exception {
         BirdDTO birdDTO = new BirdDTO("1",
                 "birdMockName",
                 "birdMockFamily", Arrays.asList("Asia", "Africa"),
                 "2021-10-10",
-                null);
+                true);
         ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/birds")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/birds")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(birdDTO)))
                 .andExpect(status().isOk()).andReturn();
-        Assertions.assertEquals("birdMockName",
-                mapper.readValue(result.getResponse().getContentAsString(), BirdDTO.class).getName());
-        Assertions.assertEquals("birdMockFamily",
-                mapper.readValue(result.getResponse().getContentAsString(), BirdDTO.class).getFamily());
+        Assertions.assertNotNull(result);
     }
-
-    @Test
-    void givenInvalidBirdRequest_andReturnBadRequest() throws Exception {
-        BirdDTO birdDTO = new BirdDTO("1",
-                "birdMockName",
-                "", Arrays.asList("Asia", "Africa"),
-                "2021-10-10",
-                null);
-        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/birds")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(birdDTO)))
-                .andExpect(status().isBadRequest()).andReturn();
-
-        Assertions.assertEquals("Bird family cannot be empty",
-                mapper.readValue(result.getResponse().getContentAsString(), ErrorMessage.class).getMessage());
-    }
-
 }

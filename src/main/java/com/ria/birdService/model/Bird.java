@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.persistence.Id;
 import java.util.List;
 
 @Entity
+@Table(name = "bird")
 @TypeDef(name = "string-array", typeClass = ListArrayType.class)
 public class Bird {
     @Id
