@@ -2,8 +2,10 @@ package com.ria.birdService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ria.birdService.config.DbContainer;
+import com.ria.birdService.exception.handler.ErrorMessage;
 import com.ria.birdService.model.dto.BirdDTO;
 import org.junit.ClassRule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ public class DeleteBirdByIDTests {
     }
 
     @Test
-    public void testDeleteBirdById_removedSuccessfully() throws Exception {
+    void testDeleteBirdById_removedSuccessfully() throws Exception {
         BirdDTO birdDTO = new BirdDTO("1",
                 "birdMockName",
                 "birdMockFamily", Arrays.asList("Asia", "Africa"),
@@ -54,9 +56,12 @@ public class DeleteBirdByIDTests {
     }
 
     @Test
-    public void testDeleteByID_throwsException() throws Exception{
-        mockMvc.perform(MockMvcRequestBuilders.delete("/birds/1")
+    void testDeleteByID_throwsException() throws Exception{
+        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+        MvcResult result =  mockMvc.perform(MockMvcRequestBuilders.delete("/birds/1")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andReturn();
+        Assertions.assertEquals("Bird with id 1 not found", mapper.readValue(result.getResponse().getContentAsString(), ErrorMessage.class).getMessage() );
     }
 }

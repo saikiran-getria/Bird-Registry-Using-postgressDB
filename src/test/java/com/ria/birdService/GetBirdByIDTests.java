@@ -2,9 +2,11 @@ package com.ria.birdService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ria.birdService.config.DbContainer;
+import com.ria.birdService.exception.handler.ErrorMessage;
 import com.ria.birdService.model.Bird;
 import com.ria.birdService.model.dto.BirdDTO;
 import org.junit.ClassRule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ public class GetBirdByIDTests {
     }
 
     @Test
-    public void testGetBirdById_returnBird_VisibilityFalse() throws Exception{
+    void testGetBirdById_returnBird_VisibilityFalse() throws Exception{
         BirdDTO birdDTO = new BirdDTO("1",
                 "birdMockName",
                 "birdMockFamily", Arrays.asList("Asia", "Africa"),
@@ -59,7 +61,7 @@ public class GetBirdByIDTests {
     }
 
     @Test
-    public void testGetBirdById_returnBird_VisibilityTrue() throws Exception{
+    void testGetBirdById_returnBird_VisibilityTrue() throws Exception{
         BirdDTO birdDTO = new BirdDTO("1",
                 "birdMockName",
                 "birdMockFamily", Arrays.asList("Asia", "Africa"),
@@ -79,11 +81,15 @@ public class GetBirdByIDTests {
     }
 
     @Test
-    public void testGetBirdByID_throwsNotFoundException() throws Exception {
+    void testGetBirdByID_throwsNotFoundException() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/birds/invalidID")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
+        Assertions.assertEquals("Bird with id invalidID not found", mapper.readValue(result.getResponse().getContentAsString(), ErrorMessage.class).getMessage() );
+
+
     }
 
 }
